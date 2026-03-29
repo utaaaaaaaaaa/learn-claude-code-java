@@ -16,16 +16,32 @@ public final class EnvConfig {
     private final String baseUrl;
     private final Path workdir;
 
+    // DeepSeek 配置
+    private final String deepSeekApiKey;
+    private final String deepSeekBaseUrl;
+    private final String deepSeekModelId;
+
+    // 客户端选择
+    private final String llmProvider;
+
     /**
      * 读取环境变量并初始化模型访问所需配置。
      */
     public EnvConfig() {
         // 优先允许从 .env 读取，同时兼容系统环境变量覆盖。
         this.dotenv = Dotenv.configure().ignoreIfMissing().load();
-        this.modelId = require("MODEL_ID");
+        this.modelId = getenv("MODEL_ID").orElse("");
         this.apiKey = getenv("ANTHROPIC_API_KEY").orElse("");
         this.baseUrl = getenv("ANTHROPIC_BASE_URL").orElse("https://api.anthropic.com");
         this.workdir = Paths.get("").toAbsolutePath().normalize();
+
+        // DeepSeek 配置读取
+        this.deepSeekApiKey = getenv("DEEPSEEK_API_KEY").orElse("");
+        this.deepSeekBaseUrl = getenv("DEEPSEEK_BASE_URL").orElse("https://api.deepseek.com");
+        this.deepSeekModelId = getenv("DEEPSEEK_MODEL_ID").orElse("deepseek-chat");
+
+        // 客户端选择：默认 anthropic，可设置为 deepseek
+        this.llmProvider = getenv("LLM_PROVIDER").orElse("anthropic");
     }
 
     /**
@@ -91,5 +107,50 @@ public final class EnvConfig {
      */
     public Path getWorkdir() {
         return workdir;
+    }
+
+    /**
+     * 返回 DeepSeek API Key。
+     *
+     * @return DeepSeek API Key
+     */
+    public String getDeepSeekApiKey() {
+        return deepSeekApiKey;
+    }
+
+    /**
+     * 返回 DeepSeek 服务的基础地址。
+     *
+     * @return DeepSeek Base URL
+     */
+    public String getDeepSeekBaseUrl() {
+        return deepSeekBaseUrl;
+    }
+
+    /**
+     * 返回 DeepSeek 模型 ID。
+     *
+     * @return DeepSeek 模型 ID
+     */
+    public String getDeepSeekModelId() {
+        return deepSeekModelId;
+    }
+
+    /**
+     * 返回 LLM 提供者选择。
+     *
+     * @return 提供者名称（anthropic 或 deepseek）
+     */
+    public String getLlmProvider() {
+        return llmProvider;
+    }
+
+    /**
+     * 判断是否使用 DeepSeek 客户端。
+     *
+     * @return 是否使用 DeepSeek
+     */
+    public boolean useDeepSeek() {
+        return "deepseek".equalsIgnoreCase(llmProvider);
     }
 }

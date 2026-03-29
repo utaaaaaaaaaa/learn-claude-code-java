@@ -1,8 +1,8 @@
 package com.learnclaudecode.agents;
 
 import com.learnclaudecode.background.BackgroundManager;
-import com.learnclaudecode.common.AnthropicClient;
 import com.learnclaudecode.common.JsonUtils;
+import com.learnclaudecode.common.LLMClient;
 import com.learnclaudecode.common.WorkspacePaths;
 import com.learnclaudecode.context.CompressionService;
 import com.learnclaudecode.model.ChatMessage;
@@ -38,7 +38,7 @@ import java.util.Scanner;
  * “LLM 负责决定下一步动作，本地运行时负责真正执行动作并反馈结果”。
  */
 public class AgentRuntime {
-    private final AnthropicClient client;
+    private final LLMClient client;
     private final WorkspacePaths paths;
     private final CommandTools commandTools;
     private final TodoManager todoManager;
@@ -53,7 +53,7 @@ public class AgentRuntime {
     /**
      * 构造 AgentRuntime 实例。
      *
-     * @param client AnthropicClient 实例
+     * @param client LLMClient 实例
      * @param paths WorkspacePaths 实例
      * @param commandTools CommandTools 实例
      * @param todoManager TodoManager 实例
@@ -65,7 +65,7 @@ public class AgentRuntime {
      * @param teammateManager TeammateManager 实例
      * @param worktreeManager WorktreeManager 实例
      */
-    public AgentRuntime(AnthropicClient client,
+    public AgentRuntime(LLMClient client,
                         WorkspacePaths paths,
                         CommandTools commandTools,
                         TodoManager todoManager,
@@ -194,7 +194,8 @@ public class AgentRuntime {
                     case "todo", "TodoWrite" -> {
                         usedTodo = true;
                         @SuppressWarnings("unchecked")
-                        List<Map<String, Object>> items = (List<Map<String, Object>>) input.getOrDefault("items", List.of());
+                        // 兼容不同模型的字段名：items 或 todos
+                        List<Map<String, Object>> items = (List<Map<String, Object>>) input.getOrDefault("items", input.getOrDefault("todos", List.of()));
                         yield todoManager.update(items);
                     }
                     case "task" -> runSubagent(String.valueOf(input.get("prompt")), config.subagentWritable());

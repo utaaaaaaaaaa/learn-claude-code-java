@@ -1,7 +1,7 @@
 package com.learnclaudecode.team;
 
-import com.learnclaudecode.common.AnthropicClient;
 import com.learnclaudecode.common.JsonUtils;
+import com.learnclaudecode.common.LLMClient;
 import com.learnclaudecode.common.WorkspacePaths;
 import com.learnclaudecode.agents.StageConfig;
 import com.learnclaudecode.model.ChatMessage;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TeammateManager {
     private final WorkspacePaths paths;
-    private final AnthropicClient client;
+    private final LLMClient client;
     private final CommandTools commandTools;
     private final MessageBus bus;
     private final TaskManager taskManager;
@@ -56,7 +56,7 @@ public class TeammateManager {
      * @param taskManager 任务管理器
      */
     public TeammateManager(WorkspacePaths paths,
-                           AnthropicClient client,
+                           LLMClient client,
                            CommandTools commandTools,
                            MessageBus bus,
                            TaskManager taskManager) {

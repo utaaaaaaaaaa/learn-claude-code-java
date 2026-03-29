@@ -26,8 +26,18 @@ public class TodoManager {
         List<Map<String, Object>> validated = new ArrayList<>();
         for (int i = 0; i < newItems.size(); i++) {
             Map<String, Object> item = newItems.get(i);
-            String status = String.valueOf(item.getOrDefault("status", "pending")).toLowerCase();
-            String text = String.valueOf(item.getOrDefault("text", item.getOrDefault("content", ""))).trim();
+            // 兼容多种 status 值：todo -> pending, doing -> in_progress, done -> completed
+            String rawStatus = String.valueOf(item.getOrDefault("status", "pending")).toLowerCase();
+            String status = switch (rawStatus) {
+                case "todo", "pending" -> "pending";
+                case "doing", "in_progress" -> "in_progress";
+                case "done", "completed" -> "completed";
+                default -> rawStatus;
+            };
+            // 兼容多种字段名：text, content, name
+            String text = String.valueOf(item.getOrDefault("text",
+                    item.getOrDefault("content",
+                            item.getOrDefault("name", "")))).trim();
             String id = String.valueOf(item.getOrDefault("id", i + 1));
             String activeForm = String.valueOf(item.getOrDefault("activeForm", text)).trim();
             if (text.isBlank()) {

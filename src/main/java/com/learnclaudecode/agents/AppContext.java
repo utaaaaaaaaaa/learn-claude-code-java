@@ -2,7 +2,9 @@ package com.learnclaudecode.agents;
 
 import com.learnclaudecode.background.BackgroundManager;
 import com.learnclaudecode.common.AnthropicClient;
+import com.learnclaudecode.common.DeepSeekClient;
 import com.learnclaudecode.common.EnvConfig;
+import com.learnclaudecode.common.LLMClient;
 import com.learnclaudecode.common.WorkspacePaths;
 import com.learnclaudecode.context.CompressionService;
 import com.learnclaudecode.skills.SkillLoader;
@@ -37,11 +39,15 @@ public final class AppContext {
         EnvConfig env = new EnvConfig();
         WorkspacePaths paths = new WorkspacePaths(env.getWorkdir());
 
-        // 下面按“基础能力 -> 扩展机制 -> 总运行时”的顺序创建共享服务。
+        // 下面按”基础能力 -> 扩展机制 -> 总运行时”的顺序创建共享服务。
         // 这样设计有两个好处：
         // 1. 每个阶段入口类都不需要重复写装配代码；
         // 2. 学习时可以很清楚地看到 Claude Code 风格 Agent 的分层结构。
-        AnthropicClient client = new AnthropicClient(env);
+
+        // 根据配置选择 LLM 客户端
+        LLMClient client = env.useDeepSeek()
+                ? new DeepSeekClient(env)
+                : new AnthropicClient(env);
         CommandTools commandTools = new CommandTools(paths);
         TodoManager todoManager = new TodoManager();
         SkillLoader skillLoader = new SkillLoader(paths);
